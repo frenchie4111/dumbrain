@@ -8,4 +8,4 @@
 | Control    | Bellman Expectation Equation + Greedy Policy Improvement | Policy Iteration
 | Control    | Bellman Optimally Equation   | Value Iteration
 
-See [Jupyter Notebook](Lecture 3 - Planning by Dynamic Programming.ipynb)
+See [Jupyter Notebook](./Lecture 3 - Planning by Dynamic Programming.ipynb)
