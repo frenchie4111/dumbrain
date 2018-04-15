@@ -24,3 +24,5 @@ test different strategies / games / etc.
  - Fix issue with ties not being properly counted (optimize for not-losing rather than winning)
  - Implement connect4 for a more advanced challenge
  - Implement a basic "play against the bot" script for fun
+ - Implement a version of the decision that uses a combination of forward looking MDP and
+ the current NN based approach
