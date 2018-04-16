@@ -6,7 +6,7 @@ Here will be all things related to me learning about reinforcement learning
 
 In [this folder](david_silver_rl_lectures/) I will be following David Silver's
 **great** lecture series [here](https://www.youtube.com/watch?v=2pWv7GOvuf0) and
-doing some excersizes along the way.
+doing some excersizes along the way. [slides/exercise](http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching.html)
 
 ## Cartpole
 
