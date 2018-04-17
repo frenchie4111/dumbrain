@@ -26,7 +26,11 @@ def getCard( sign=None ):
     return card * sign
 
 class Easy21State():
-    def __init__( self, dealer_sum=getCard( 1 ), player_sum=getCard( 1 ), terminal=False ):
+    def __init__( self, dealer_sum=None, player_sum=None, terminal=False ):
+        if dealer_sum is None:
+            dealer_sum = getCard(1)
+        if player_sum is None:
+            player_sum = getCard(1)
         self.dealer_sum = dealer_sum
         self.player_sum = player_sum
         self.terminal = terminal
@@ -34,12 +38,26 @@ class Easy21State():
     def __repr__( self ):
         return str([self.dealer_sum, self.player_sum, self.terminal])
 
+    def state( self ):
+        """
+        >>> Easy21State( 1, 1 ).state()
+        array([1, 1])
+        """
+        return np.array([ self.dealer_sum - 1, self.player_sum - 1 ])
+
     def clone( self ):
         return Easy21State( self.dealer_sum, self.player_sum, self.terminal )
 
 class Easy21Environment():
     def __init__( self ):
         pass
+
+    def getEmptyQSpace( self, dtype=np.float ):
+        """
+        Not sure of the best way to handle this
+        dealer_sum, player_sum, action
+        """
+        return np.zeros( ( 10, 21, 2 ), dtype=dtype )
 
     def handleHit( self, state ):
         """
@@ -59,7 +77,7 @@ class Easy21Environment():
         """
         state = state.clone()
         state.player_sum += getCard()
-        if state.player_sum > 21:
+        if state.player_sum > 21 or state.player_sum < 1:
             state.terminal = True
             return state, -1
         return state, 0
@@ -86,8 +104,8 @@ class Easy21Environment():
 
     def step( self, state, action ):
         action_handlers = {
-            0: self.handleHit( state ),
-            1: self.handleStick( state )
+            0: self.handleHit,
+            1: self.handleStick
         }
         state, reward = action_handlers[ action ]( state )
         return state, reward
