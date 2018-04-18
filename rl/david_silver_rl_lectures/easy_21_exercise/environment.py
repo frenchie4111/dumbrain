@@ -41,7 +41,7 @@ class Easy21State():
     def state( self ):
         """
         >>> Easy21State( 1, 1 ).state()
-        array([1, 1])
+        array([0, 0])
         """
         return np.array([ self.dealer_sum - 1, self.player_sum - 1 ])
 
@@ -52,12 +52,11 @@ class Easy21Environment():
     def __init__( self ):
         pass
 
-    def getEmptyQSpace( self, dtype=np.float ):
-        """
-        Not sure of the best way to handle this
-        dealer_sum, player_sum, action
-        """
-        return np.zeros( ( 10, 21, 2 ), dtype=dtype )
+    def getStateSpace( self ):
+        return ( 10, 21 )
+
+    def getActionSpace( self ):
+        return 2
 
     def handleHit( self, state ):
         """
@@ -89,14 +88,18 @@ class Easy21Environment():
         >>> after_state, reward = env.handleStick( before_state )
         >>> after_state.dealer_sum != before_state.dealer_sum and after_state.terminal
         True
-        >>> reward
-        -1
+        >>> after_state, reward = env.handleStick( Easy21State( 1, 21 ) )
+        >>> after_state.dealer_sum != before_state.dealer_sum and after_state.terminal
+        True
+        >>> after_state, reward = env.handleStick( Easy21State( 17, 21 ) )
+        >>> after_state.dealer_sum != before_state.dealer_sum and after_state.terminal
+        True
         """
         state = state.clone()
-        while( state.dealer_sum < 17 ):
+        while state.dealer_sum < 17 and state.dealer_sum > 0:
             state.dealer_sum += getCard()
         state.terminal = True
-        if state.player_sum > state.dealer_sum: # Win
+        if state.player_sum > state.dealer_sum or state.dealer_sum > 21 or state.dealer_sum < 1: # Win
             return state, 1
         if state.player_sum < state.dealer_sum: # Lose
             return state, -1
