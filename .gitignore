@@ -1,5 +1,6 @@
 # Custom Ignores
 
+data/
 results/
 
 # Created by https://www.gitignore.io/api/python,visualstudiocode,osx,atom
