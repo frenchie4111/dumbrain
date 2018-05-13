@@ -1,5 +1,6 @@
 import cv2 as cv
 import time
+import numpy as np
 
 class TemplateMatcher():
     def __init__( self, templates ):
@@ -18,9 +19,9 @@ class TemplateMatcher():
         return frame
 
     def preprocessTemplate( self, template ):
-        return template
+        return template, None
 
-    def getMask( self, template ):
+    def getMask( self, template, template_i ):
         return None
     
     def shortCircuit( self, score ):
@@ -31,10 +32,12 @@ class TemplateMatcher():
 
         all_results = []
 
-        for template_i, template in enumerate( self.getTemplates() ):
-            mask = self.getMask( template, template_i )
+        for template in self.getTemplates():
+            template, mask = template
 
             w, h = template.shape[ 0:2 ]
+
+            start_time = time.clock()
 
             results = cv.matchTemplate( frame, template, cv.TM_CCORR_NORMED, mask=mask )
             _, score, _, max_loc = cv.minMaxLoc( results )
@@ -46,6 +49,6 @@ class TemplateMatcher():
             
             all_results.append( results )
         
-        scores = [ sprite_results[ 0 ] for sprite_results in all_sprite_results ]
+        scores = [ sprite_results[ 0 ] for sprite_results in all_results ]
         highest_score_idx = np.argmax( scores )
         return all_results[ highest_score_idx ]
