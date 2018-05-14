@@ -1,6 +1,7 @@
 import cv2 as cv
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 class TemplateMatcher():
     def __init__( self, templates ):
@@ -35,29 +36,41 @@ class TemplateMatcher():
             return True
         return False
     
-    def matchTemplate( self, frame ):
+    def matchTemplate( self, frame, previous=None ):
         frame = self.preprocessFrame( frame )
 
         all_results = []
 
-        for template_i, template in enumerate( self.getTemplates() ):
-            template, mask = template
+        search_frames = [ frame ]
 
-            w, h = template.shape[ 0:2 ]
+        frame_width = 5
+        if previous is not None:
+            previous_tl, previous_br = previous
+            previous_frame = frame[ previous_tl[ 1 ] - frame_width : previous_br[ 1 ] + frame_width, previous_tl[ 0 ] - frame_width : previous_br[ 0 ] + frame_width ]
+            search_frames.insert( 0, previous_frame )
 
-            start_time = time.clock()
+        for search_frame in search_frames:
+            for template_i, template in enumerate( self.getTemplates() ):
+                template, mask = template
+                
+                if search_frame.shape[ 0 ] < template.shape[ 0 ] or search_frame.shape[ 1 ] < template.shape[ 1 ]:
+                    continue
 
-            results = cv.matchTemplate( frame, template, cv.TM_CCORR_NORMED, mask=mask )
-            _, score, _, max_loc = cv.minMaxLoc( results )
+                w, h = template.shape[ 0:2 ]
 
-            results = score, ( max_loc[ 0 ], max_loc[ 1 ] ), ( max_loc[ 0 ] + h, max_loc[ 1 ] + w  ), time.clock() - start_time
+                start_time = time.clock()
 
-            if( self.shortCircuit( results ) ):
-                self.updateFrequencies( template_i )
-                return results
-            
-            all_results.append( results )
-        
+                results = cv.matchTemplate( search_frame, template, cv.TM_CCORR_NORMED, mask=mask )
+                _, score, _, max_loc = cv.minMaxLoc( results )
+
+                results = score, ( max_loc[ 0 ], max_loc[ 1 ] ), ( max_loc[ 0 ] + h, max_loc[ 1 ] + w  ), time.clock() - start_time
+
+                if( self.shortCircuit( results ) ):
+                    self.updateFrequencies( template_i )
+                    return results
+
+                all_results.append( results )
+
         scores = [ sprite_results[ 0 ] for sprite_results in all_results ]
         highest_score_idx = np.argmax( scores )
         self.updateFrequencies( highest_score_idx )
