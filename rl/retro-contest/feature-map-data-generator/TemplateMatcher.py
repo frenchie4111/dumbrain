@@ -72,7 +72,7 @@ class TemplateMatcher():
                 y1 = max_loc[ 1 ] + offset[ 1 ]
 
                 x2 = x1 + h
-                y2 = x1 + w
+                y2 = y1 + w
 
                 results = score, ( x1, y1 ), ( x2, y2 ), template_idx_map[ template_i ]
 
