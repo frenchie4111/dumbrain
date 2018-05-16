@@ -1,9 +1,13 @@
 import retro
 
-env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record='.')
-env.reset()
-while True:
-    _obs, _rew, done, _info = env.step(env.action_space.sample())
-    env.render()
-    if done:
-        break
+env = retro.make(
+    game='SonicTheHedgehog-Genesis', 
+    state='GreenHillZone.Act1', 
+    record='data/record/' 
+)
+
+obs = env.reset()
+for i in range( 1000 ):
+    action = env.action_space.sample()
+    action[ 7 ] = 1
+    env.step( action )
