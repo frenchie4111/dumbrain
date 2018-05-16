@@ -48,7 +48,6 @@ class TemplateMatcher():
         if previous is not None:
             previous_tl, previous_br = previous
             previous_frame = frame[ previous_tl[ 1 ] - frame_width : previous_br[ 1 ] + frame_width, previous_tl[ 0 ] - frame_width : previous_br[ 0 ] + frame_width ]
-            print( previous_tl )
             search_frames.insert( 0, ( previous_frame, ( previous_tl[ 0 ] - frame_width, previous_tl[ 1 ] - frame_width ) ) )
 
         for search_frame_info in search_frames:
@@ -67,7 +66,7 @@ class TemplateMatcher():
 
                 results = cv.matchTemplate( search_frame, template, cv.TM_CCORR_NORMED, mask=mask )
                 _, score, _, max_loc = cv.minMaxLoc( results )
-                
+
                 x1 = max_loc[ 0 ] + offset[ 0 ]
                 y1 = max_loc[ 1 ] + offset[ 1 ]
 
@@ -77,7 +76,6 @@ class TemplateMatcher():
                 results = score, ( x1, y1 ), ( x2, y2 ), template_idx_map[ template_i ]
 
                 if( self.shortCircuit( results ) ):
-                    print( max_loc[ 0 ], max_loc[ 1 ], offset[ 1 ], offset[ 0 ], x1, y1, x2, y2 )
                     self.updateFrequencies( template_i % len( frame ) )
                     return results
 
