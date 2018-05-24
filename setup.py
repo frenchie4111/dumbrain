@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='dumbrain',
@@ -8,7 +8,5 @@ setup(
     description='Dumbrain AI Monorepo',
     author='Mike Lyons',
     author_email='mdl0394@gmail.com',
-    packages=[
-        'dumbrain'
-    ]
+    packages=find_packages( exclude=[ 'tmp' ] )
 )
