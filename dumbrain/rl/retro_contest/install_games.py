@@ -1,3 +1,9 @@
+"""
+Installs all of the sonic games. Downloads from my server (for installing on remote systems.)
+
+NOTE: You must own the games before downloading, otherwise :pirate_flag:
+"""
+
 from dumbrain.lib.download import downloadAndUnzip
 import retro.data
 import os
