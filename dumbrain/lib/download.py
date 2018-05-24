@@ -15,7 +15,7 @@ _download_pbar = None
 
 def mkdirp( folder ):
     if not path.exists( folder ):
-        print( f'Directory {folder} didn\'t exist, making' )
+        print( 'Directory', folder, 'didn\'t exist, making' )
         os.makedirs( folder )
 
 def download( url, dest_file, show_progress=True, loading_bar=tqdm ):
@@ -65,5 +65,5 @@ def validateArgs( argv ):
 
 if __name__ == '__main__':
     download_url, save_folder = validateArgs( sys.argv )
-    print( f'Downloading and unzipping { download_url } to { save_folder }' )
+    print( 'Downloading and unzipping', download_url, 'to', save_folder )
     downloadAndUnzip( download_url, save_folder )
