@@ -9,7 +9,6 @@ setup(
     author='Mike Lyons',
     author_email='mdl0394@gmail.com',
     packages=[
-        '.',
-        'lib/'
+        'dumbrain'
     ]
 )
