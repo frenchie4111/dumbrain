@@ -1,8 +1,8 @@
 import retro
 
 env = retro.make(
-    game='SonicTheHedgehog-Genesis', 
-    state='GreenHillZone.Act1', 
+    game='SonicTheHedgehog2-Genesis', 
+    state='MetropolisZone.Act1', 
     record='data/record/' 
 )
 

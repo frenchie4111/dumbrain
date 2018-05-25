@@ -1,20 +1,24 @@
 import retro
+import matplotlib
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
+import sys
 
 from keras import models, losses
 import keras.backend as K
 
+# Some models use the l1_loss function
 def l1_loss( y_true, y_pred ):
     print( y_true, y_pred )
     return K.sum( K.abs( y_pred - y_true ), axis=-1)
 
 losses.l1_loss = l1_loss
 
-model = models.load_model( 'data/model-20180515-231317.h5' )
+model = models.load_model( sys.argv[ 1 ] )
 
-movie = retro.Movie( './data/record/SonicTheHedgehog-Genesis-GreenHillZone.Act1-0000.bk2' )
+movie = retro.Movie( sys.argv[ 2 ] )
 movie.step()
 
 env = retro.make(
@@ -34,6 +38,11 @@ def getPrediction( _obs ):
     return model.predict( fixEmuColors( _obs )[ None, :, :, : ] )[ 0, :, :, 0 ]
 
 fig, ( ax1, ax2 ) = plt.subplots( 1, 2 )
+
+ax1.xaxis.set_visible(False)
+ax1.yaxis.set_visible(False)
+ax2.xaxis.set_visible(False)
+ax2.yaxis.set_visible(False)
 
 env_im = ax1.imshow( obs )
 pred_im = ax2.imshow( getPrediction( obs ) )
