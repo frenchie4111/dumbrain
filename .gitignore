@@ -7,6 +7,7 @@ results/
 artifacts/
 *.bk2
 .ps_project
+*.secret.*
 
 # Created by https://www.gitignore.io/api/python,visualstudiocode,osx,atom
 
