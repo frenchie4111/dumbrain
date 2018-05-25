@@ -57,6 +57,25 @@ def downloadAndUnzip( download_url, save_folder, loading_bar=tqdm ):
         download( download_url, full_temp_zip_filename, loading_bar=loading_bar )
         unzip( full_temp_zip_filename, save_folder, loading_bar=loading_bar )
 
+def uploadColabAndUnzip( save_folder, loading_bar=tqdm ):
+    from google.colab import files
+    mkdirp( save_folder )
+
+    temp_zip_filename = 'temp.zip'
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        full_temp_zip_filename = path.join( temp_dir, temp_zip_filename )
+        uploaded_files = files.upload()
+
+        if( len( uploaded_files.keys() ) > 1 ):
+            raise RuntimeError( 'More than one file upload' )
+
+        uploaded_file = list( uploaded_files.values() )[ 0 ]            
+        with open( full_temp_zip_filename, 'wb' ) as f:
+            f.write( uploaded_file )
+
+        unzip( full_temp_zip_filename, save_folder, loading_bar=loading_bar )
+
 def validateArgs( argv ):
     if not len( argv ) == 3:
         print( 'Usage: download.py <url> <save folder>' )
