@@ -4,30 +4,36 @@ import numpy as np
 
 from batched_env_wrappers import BatchedObservationWrapper
 
-def fixEmuColors( _obs ):
-    """
-    Emu Observations are slightly offset from training data due to 9bit color upsampling
-    Also normalize the colors by dividing by 255
-    """
-    _obs = ( _obs / 32 ).astype( np.uint8 ) * 32
-    _obs = _obs.astype( np.float32 ) / 255
-    return _obs
-
 class CollisionMapWrapper( BatchedObservationWrapper ):
+    """
+    This wrapper performs the final operations for our model input. The output observations are
+    a 2 channel image. Channel 1 is the collision map, generated with a loaded keras model, channel
+    2 is the grayscale version of the image.
+
+
+    About Color Correction: 
+        The genesis that Sonic run on uses 9bit color and the emulator upsamples the color differently
+    than the collision mapper. To solve for this we divide the colors by 32, floor, and multiply by 32. 
+    This forces the collision mapper colors and observation colors to be equal.
+    """
     def __init__( self, env, model_file='models/collision-model-20180525-005107.h5', **args ):
         self.model = models.load_model( model_file )
 
         self._sess = tf.Session()
         self._images = tf.placeholder( tf.float32, shape=( None, ) + env.observation_space.shape )
-        self._grayscale = tf.image.rgb_to_grayscale( self._images )
+
+        self._correction_constant = tf.constant( 32, dtype=tf.float32 )
+        self._normalization_constant = tf.constant( 255, dtype=tf.float32 )
+
+        self._color_corrected_images = tf.floor( self._images / self._correction_constant ) * self._correction_constant / self._normalization_constant
+
+        self._grayscale = tf.image.rgb_to_grayscale( self._color_corrected_images )
 
         super( CollisionMapWrapper, self ).__init__( env, **args )
     
     def observation( self, obses ):
-        obses = fixEmuColors( np.array( obses ) )
-
-        col_map = self.model.predict( obses )
-        grayscale = self._sess.run( self._grayscale, { self._images: obses } )
+        color_corrected_obses, grayscale = self._sess.run( [ self._color_corrected_images, self._grayscale ], { self._images: obses } )
+        col_map = self.model.predict( color_corrected_obses )
 
         return np.concatenate( ( col_map, grayscale ), axis=-1 )
 

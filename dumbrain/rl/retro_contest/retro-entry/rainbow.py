@@ -38,7 +38,10 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
         scheduled_saver = ScheduledSaver( save_interval=10000, save_dir=output_dir )
         print( 'Outputting trained model to', output_dir )
 
-        player = NStepPlayer( BatchedPlayer( env, dqn.online_net ), 3 )
+        # Reporting uses BatchedPlayer to get _total_rewards
+        batched_player = BatchedPlayer( env, dqn.online_net )
+        player = NStepPlayer( batched_player, 3 )
+
         optimize = dqn.optimize( learning_rate=1e-4 )
 
         if pretrained_model is None:
@@ -55,7 +58,7 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
         if( use_schedules ):
             tf_schedules = [
                 scheduled_saver,
-                LosswiseSchedule( num_steps ),
+                LosswiseSchedule( num_steps, batched_player ),
                 LoadingBar( num_steps )
             ]
 

@@ -58,11 +58,16 @@ class PeriodicPrinter( TFSchedule ):
             print( 'Time', time )
 
 class LosswiseSchedule( TFSchedule ):
-    def __init__( self, max_iter ):
-        self.session = losswise.Session( tag='losses', max_iter=max_iter )
-        self.graph = self.session.graph( 'gpu_stats', kind='min' )
+    def __init__( self, max_iter, batched_player ):
+        self.player = batched_player
+
         GPUs = GPU.getGPUs()
         self.gpu = GPUs[ 0 ]
+
+        # Setup Losswise stuff
+        self.session = losswise.Session( max_iter=max_iter )
+        self.graph = self.session.graph( 'gpu_stats', kind='min' )
+        self.reward_graph = self.session.graph( 'rewards', kind='max', display_interval=2000 )
 
     def tick( self, sess, time ):
         if not np.isnan( time ):
@@ -72,3 +77,5 @@ class LosswiseSchedule( TFSchedule ):
                     'load': self.gpu.load * 100,
                 } 
             )
+
+            self.reward_graph.append( time, dict( enumerate( self.player._total_rewards[ 0 ] ) ) )

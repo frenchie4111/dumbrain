@@ -16,7 +16,7 @@ custom build sonic levels, and you only have 1,000,000 steps to do so.
 
 From the contest site:
 
-[Link to site (May eventually die)](https://contest.openai.com/)
+[Link to Contest Site (May eventually die)](https://contest.openai.com/)
 
 > We're holding a transfer-learning contest using the Sonic The Hedgehog™ series of games for SEGA Genesis. In this contest, participants try to create the best agent for playing custom levels of the Sonic games — without having access to those levels during development. See our blog post for more details.
 > Here's how the contest works:
