@@ -1,5 +1,4 @@
 import os
-import tensorflow as tf
 from tqdm import tqdm
 from dumbrain.lib.download import mkdirp
 import gpu
@@ -11,9 +10,6 @@ import sys
 import losswise
 
 losswise.set_api_key( 'HMR4DB5IE' )
-
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
 
 class TFSchedule():
     time = 0
@@ -27,6 +23,7 @@ class TFSchedule():
 
 class ScheduledSaver( TFSchedule ):
     def __init__( self, save_interval=1000, save_dir='data/model/' ):
+        import tensorflow as tf
         self.saver = tf.train.Saver()
         self.save_interval = save_interval
 
@@ -56,7 +53,7 @@ class PeriodicPrinter( TFSchedule ):
 
     def tick( self, sess, time ):
         if time % self.print_interval == 0:
-            eprint( 'Time', time )
+            print( 'Time', time )
             gpu.printUtilization()
 
 class LosswiseSchedule( TFSchedule ):

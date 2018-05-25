@@ -5,47 +5,30 @@ Train an agent on Sonic using an open source Rainbow DQN
 implementation.
 """
 
+# Get our envs before we import tensorflow, incase they need their own tf instance
+from multienv import getEnvFns
+from anyrl.envs import batched_gym_env
+env_fns = getEnvFns()
+env = batched_gym_env( env_fns )
+
+print( env.observation_space )
+
 import tensorflow as tf
 
 from anyrl.algos import DQN
-from anyrl.envs import BatchedGymEnv
-from anyrl.envs.wrappers import BatchedFrameStack
 from anyrl.models import rainbow_models
 from anyrl.rollouts import BatchedPlayer, PrioritizedReplayBuffer, NStepPlayer
 from anyrl.spaces import gym_space_vectorizer
-import gym_remote.exceptions as gre
 
-import retro
-from tqdm import tqdm
-from env_wrappers import AllowBacktracking, SonicDiscretizer
 from schedules import PeriodicPrinter, ScheduledSaver, LoadingBar, LosswiseSchedule
 
-import retrowrapper
-from retro_contest.local import make
+from batched_env_wrappers import BatchedResizeImageWrapper
+from collision_wrapper import CollisionMapWrapper
 
-import os
+env = CollisionMapWrapper( env )
+env = BatchedResizeImageWrapper( env )
 
-import sys
-
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
-retrowrapper.set_retro_make( make )
-
-game_state_pairs = []
-envs = []
-for game in [ 'SonicTheHedgehog-Genesis', 'SonicTheHedgehog2-Genesis', 'SonicAndKnuckles3-Genesis' ]:
-    for state in retro.list_states( game ):
-        game_state_pairs.append( [ game, state ] )
-
-        env = retrowrapper.RetroWrapper( game, state=state )
-
-        env = AllowBacktracking( env )
-        env = SonicDiscretizer( env )
-
-        envs.append( env )
-
-env = BatchedGymEnv( [ envs ] )
+print( env.observation_space )
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True # pylint: disable=E1101
@@ -67,7 +50,7 @@ with tf.Session( config=config ) as sess:
     optimize = dqn.optimize( learning_rate=1e-4 )
 
     sess.run( tf.global_variables_initializer() )
-    eprint( 'Beginning Training' )
+    print( 'Beginning Training' )
 
     num_steps = 100000
 

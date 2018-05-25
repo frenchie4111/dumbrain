@@ -3,5 +3,5 @@
   "machineType": "P100",
   "container": "frenchie4111/anyrl-openai-gym:0.1",
   "command": "python rainbow.py",
-  "lastJobId": "jsdarcv1x8u86w"
+  "lastJobId": "js4oa5afvkbue6"
 }
