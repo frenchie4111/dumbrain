@@ -1,10 +1,26 @@
+HELP = """
+Testing script for the collision map model.
+
+You have to make a movie first (you can use ../hello_world.py to generate a random movie)
+
+Usage: python test_live <path/to/model.h5> <path/to/movie.bk5>
+"""
+
+# Check arguments before we load tf
+
+import sys
+
+if( len( sys.argv ) != 3 ):
+    print( HELP )
+    sys.exit( 1 )
+
+
 import retro
 import matplotlib
 matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 from matplotlib import animation
 import numpy as np
-import sys
 
 from keras import models, losses
 import keras.backend as K
