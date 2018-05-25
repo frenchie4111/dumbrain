@@ -8,7 +8,6 @@ import os
 import sys
 import argparse
 
-
 def installGamesFromDir( romdir ):
     roms = [ os.path.join( romdir, rom ) for rom in os.listdir( romdir ) ]
     retro.data.merge( *roms, quiet=False )
