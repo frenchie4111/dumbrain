@@ -16,4 +16,4 @@ RUN . ~/venv/bin/activate && \
 RUN . ~/venv/bin/activate && \
     python --version && \
     pip install -U git+git://github.com/frenchie4111/dumbrain.git && \
-    python -m dumbrain.rl.retro_contest.install_games
+    python -m dumbrain.rl.retro_contest.install_games http://aiml.mikelyons.org/datasets/sonic/Sonic%20Roms.zip

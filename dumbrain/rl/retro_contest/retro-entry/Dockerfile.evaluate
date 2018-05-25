@@ -13,11 +13,6 @@ RUN . ~/venv/bin/activate && \
 RUN . ~/venv/bin/activate && \
     pip install gputil losswise
 
-RUN . ~/venv/bin/activate && \
-    python --version && \
-    pip install -U git+git://github.com/frenchie4111/dumbrain.git && \
-    python -m dumbrain.rl.retro_contest.install_games
-
 ADD . .
 
 CMD [ "python", "-u", "evaluate.py" ]
