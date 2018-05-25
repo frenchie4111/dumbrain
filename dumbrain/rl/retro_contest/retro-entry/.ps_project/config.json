@@ -1,7 +1,0 @@
-{
-  "project": "retro-entry",
-  "machineType": "P100",
-  "container": "frenchie4111/anyrl-openai-gym:0.1",
-  "command": "python rainbow.py",
-  "lastJobId": "js4oa5afvkbue6"
-}

@@ -1,11 +1,12 @@
 import os
 from tqdm import tqdm
 from dumbrain.lib.download import mkdirp
-import gpu
 import GPUtil as GPU
 import numpy as np
 
 import sys
+
+import tensorflow as tf
 
 import losswise
 
@@ -48,13 +49,13 @@ class LoadingBar( TFSchedule ):
         self.bar.update( time )
 
 class PeriodicPrinter( TFSchedule ):
-    def __init__( self, print_interval=1000 ):
+    def __init__( self, dqn, print_interval=1000 ):
         self.print_interval = print_interval
+        self.dqn = dqn
 
     def tick( self, sess, time ):
         if time % self.print_interval == 0:
             print( 'Time', time )
-            gpu.printUtilization()
 
 class LosswiseSchedule( TFSchedule ):
     def __init__( self, max_iter ):
