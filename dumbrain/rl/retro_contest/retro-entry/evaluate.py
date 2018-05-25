@@ -10,4 +10,4 @@ env = BatchedGymEnv( [ [ env ] ] )
 
 from rainbow import train
 
-train( env )
+train( env, use_schedules=False )

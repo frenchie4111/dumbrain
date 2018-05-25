@@ -17,7 +17,7 @@ from schedules import PeriodicPrinter, ScheduledSaver, LoadingBar, LosswiseSched
 from batched_env_wrappers import BatchedResizeImageWrapper
 from collision_wrapper import CollisionMapWrapper
 
-def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/model.cpkt', output_dir='artifacts/model' ):
+def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/model.cpkt', output_dir='artifacts/model', use_schedules=True ):
     env = CollisionMapWrapper( batched_env )
     env = BatchedResizeImageWrapper( env )
 
@@ -50,6 +50,15 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
 
         print( 'Beginning Training, steps', num_steps )
 
+        tf_schedules = []
+
+        if( use_schedules ):
+            tf_schedules = [
+                scheduled_saver,
+                LosswiseSchedule( num_steps ),
+                LoadingBar( num_steps )
+            ]
+
         dqn.train(
             num_steps=num_steps,
             player=player,
@@ -59,10 +68,6 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
             target_interval=8192,
             batch_size=32,
             min_buffer_size=1000,
-            tf_schedules=[
-                scheduled_saver,
-                LosswiseSchedule( num_steps ),
-                LoadingBar( num_steps )
-            ]
+            tf_schedules=tf_schedules
         )
         scheduled_saver.save( sess )
