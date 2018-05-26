@@ -13,6 +13,9 @@ RUN . ~/venv/bin/activate && \
 RUN . ~/venv/bin/activate && \
     pip install gputil losswise
 
+RUN . ~/venv/bin/activate && \
+    pip install -U git+git://github.com/frenchie4111/dumbrain.git
+
 ADD . .
 
 CMD [ "python", "-u", "evaluate.py" ]

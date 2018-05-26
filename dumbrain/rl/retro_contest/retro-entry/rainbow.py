@@ -45,8 +45,7 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
         optimize = dqn.optimize( learning_rate=1e-4 )
 
         if pretrained_model is None:
-            # sess.run( tf.global_variables_initializer() )
-            pass
+            sess.run( tf.global_variables_initializer() )
         else:
             print( 'Loading pre-trained model from', pretrained_model )
             scheduled_saver.saver.restore( sess, pretrained_model )
