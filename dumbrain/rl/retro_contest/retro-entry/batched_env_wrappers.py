@@ -32,8 +32,8 @@ class BatchedResizeImageWrapper( BatchedObservationWrapper ):
     def __init__( self, env, size=( 84, 84 ), method=tf.image.ResizeMethod.AREA, **args ):
         config = tf.ConfigProto( device_count={ 'GPU': 0 } )
         self._sess = tf.Session( config=config )
-        self._images = tf.placeholder( tf.int32, shape=( None, ) + env.observation_space.shape )
-        self._resized = tf.image.resize_images( self._images, size, method=method )
+        self._images = tf.placeholder( tf.float32, shape=( None, ) + env.observation_space.shape )
+        self._resized = tf.cast( tf.image.resize_images( self._images, size, method=method ), tf.int32 )
 
         super( BatchedResizeImageWrapper, self ).__init__( env, **args )
 

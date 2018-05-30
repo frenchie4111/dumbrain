@@ -2,12 +2,13 @@ import retro
 from retro_contest.local import make
 
 from anyrl.envs.wrappers import BatchedFrameStack, ResizeImageEnv
-from env_wrappers import AllowBacktracking, SonicDiscretizer, Render
+from env_wrappers import AllowBacktracking, SonicDiscretizer, Render, StuckReset
 
 def makeEnvFn( game, state, bk2dir=None ):
     def env_fn():
         env = make( game, state=state, bk2dir=bk2dir )
 
+        env = StuckReset( env )
         env = AllowBacktracking( env )
         env = SonicDiscretizer( env )
 

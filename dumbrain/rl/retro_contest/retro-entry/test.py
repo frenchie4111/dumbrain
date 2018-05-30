@@ -7,4 +7,4 @@ env = batched_gym_env( env_fns )
 import sys
 from rainbow import train
 
-train( env, output_dir='/tmp/', pretrained_model=None, num_steps=100000 )
+train( env, output_dir='/tmp/', num_steps=100000 )

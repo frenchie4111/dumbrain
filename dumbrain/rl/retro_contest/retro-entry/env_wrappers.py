@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+from collections import deque
 
 class AllowBacktracking(gym.Wrapper):
     """
@@ -51,3 +52,27 @@ class SonicDiscretizer(gym.ActionWrapper):
 
     def action(self, a): # pylint: disable=W0221
         return self._actions[ a ].copy()
+
+class StuckReset(gym.Wrapper):
+    def __init__(self, env):
+        super(StuckReset, self).__init__(env)
+        self.last_rewards = deque( maxlen=100 )
+
+    def reset(self, **kwargs): # pylint: disable=E0202
+        self.last_rewards = deque( maxlen=100 )
+        return self.env.reset(**kwargs)
+
+    def step(self, action): # pylint: disable=E0202
+        obs, rew, done, info = self.env.step(action)
+
+        self.last_rewards.append( rew )
+        if( len( self.last_rewards ) == 100 ):
+            sum_of_last_rewards = 0
+            for i in self.last_rewards:
+                sum_of_last_rewards += abs( i )
+            if( sum_of_last_rewards < 20 ):
+                print( 'Resetting due to lack of movement' )
+                done = True
+                rew = -100
+
+        return obs, rew, done, info

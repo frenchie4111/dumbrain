@@ -17,7 +17,18 @@ from schedules import PeriodicPrinter, ScheduledSaver, LoadingBar, LosswiseSched
 from batched_env_wrappers import BatchedResizeImageWrapper
 from collision_wrapper import CollisionMapWrapper
 
-def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/model.cpkt', output_dir='artifacts/model', use_schedules=True ):
+def train( batched_env, env_count=1, batch_size_multiplier=32, num_steps=2000000, pretrained_model='artifacts/model/model.cpkt', output_dir='artifacts/model', use_schedules=True ):
+    """
+    Trains on a batched_env using anyrl-py's dqn and rainbow model.
+
+    env_count: The number of envs in batched_env
+    batch_size_multiplier: batch_size of the dqn train call will be env_count * batch_size_multiplier
+    num_steps: The number of steps to run training for
+    pretrained_model: Load tf weights from this model file
+    output_dir: Save tf weights to this file
+    use_schedules: Enables the tf_schedules for the train call. Schedules require internet access, so don't include on
+        retro-contest evaluation server
+    """
     env = CollisionMapWrapper( batched_env )
     env = BatchedResizeImageWrapper( env )
 
@@ -45,6 +56,7 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
         optimize = dqn.optimize( learning_rate=1e-4 )
 
         if pretrained_model is None:
+            print( 'Initializing with random weights' )
             sess.run( tf.global_variables_initializer() )
         else:
             print( 'Loading pre-trained model from', pretrained_model )
@@ -61,15 +73,19 @@ def train( batched_env, num_steps=2000000, pretrained_model='artifacts/model/mod
                 LoadingBar( num_steps )
             ]
 
+        print( env_count * batch_size_multiplier )
+
         dqn.train(
             num_steps=num_steps,
             player=player,
             replay_buffer=PrioritizedReplayBuffer(300000, 0.5, 0.4, epsilon=0.1),
             optimize_op=optimize,
-            train_interval=1,
+            train_interval=env_count,
             target_interval=8192,
-            batch_size=32,
-            min_buffer_size=1000,
-            tf_schedules=tf_schedules
+            batch_size=env_count * batch_size_multiplier,
+            min_buffer_size=max( 4500, env_count * batch_size_multiplier ),
+            # min_buffer_size=60,
+            tf_schedules=tf_schedules,
+            handle_ep=print
         )
         scheduled_saver.save( sess )

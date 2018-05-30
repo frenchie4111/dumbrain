@@ -67,7 +67,7 @@ class LosswiseSchedule( TFSchedule ):
         # Setup Losswise stuff
         self.session = losswise.Session( max_iter=max_iter )
         self.graph = self.session.graph( 'gpu_stats', kind='min' )
-        self.reward_graph = self.session.graph( 'rewards', kind='max', display_interval=50000 )
+        self.reward_graph = self.session.graph( 'rewards', kind='max' )
 
     def tick( self, sess, time ):
         if not np.isnan( time ):
