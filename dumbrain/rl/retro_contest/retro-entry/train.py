@@ -5,8 +5,6 @@ env_fns = getEnvFns( bk2dir='data/record/' )
 
 env_fns.pop( 52 ) # Fuck this level
 
-env_fns = [ env_fns[ 0 ] ]
-
 env = batched_gym_env( env_fns )
 
 import sys
