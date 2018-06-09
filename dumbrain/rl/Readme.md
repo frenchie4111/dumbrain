@@ -17,3 +17,9 @@ put out by openai.
 
 In order to build some intuition around how competitive genetic algorithms
 could work, I blindly implemented one [here](tictactoe-genetic/) to play tic-tac-toe.
+
+## OpenAI Retro Contest
+
+A few different projects I worked on during the OpenAI retro contest. See 
+[the project folder](retro-contest/) for more information about the different
+projects.
