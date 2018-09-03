@@ -5,12 +5,12 @@ class Test():
     def __init__( self, input, expected_output, id=None ):
         self.input = input
         self.expected_output = expected_output
-        self.id = input if id is None else id
+        self.id = id if id is not None else str( input )
 
 class TestSet():
     def __init__( self, tests, id=None ):
         self.tests = tests
-        self.id = id if id is not None else str( time.time() )
+        self.id = id if id is not None else 'default'
         self.algorithm = None
 
 class TestOutput():
