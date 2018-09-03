@@ -1,2 +1,2 @@
 from .core import *
-from .SQLOutputHandler import SQLOutputHandler
+from .SQLOutputHandler import SQLOutputHandler, loadSQLHistory

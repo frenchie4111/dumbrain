@@ -1,7 +1,9 @@
 import sqlite3
+import json
 
 from .core import OutputHandler
 from dumbrain.lib.migration import MigrationHandler
+from .core import TestSetResult
 
 class SQLOutputHandler( OutputHandler ):
     def __init__( self, sql_filename, initialize=True ):
@@ -22,7 +24,7 @@ class SQLOutputHandler( OutputHandler ):
             'algorithm_id': str( algorithm.id ), 
             'description': str( algorithm.description ), 
             'version': str( algorithm.version ), 
-            'parameters': str( algorithm.parameters )
+            'parameters': json.dumps( algorithm.parameters )
         } )
         return cursor.lastrowid
 
@@ -32,13 +34,13 @@ class SQLOutputHandler( OutputHandler ):
 
         cursor.execute( SQLOutputHandler.insert_test_set_result_sql, { 
             'test_set_id': str( test_set_result.test_set.id ), 
-            'results': str( test_set_result.result ),
+            'results': json.dumps( test_set_result.result ),
             'algorithm_instance_id': str( algorithm_instance_id )
         } )
 
         for test_result in test_set_result.test_results:
-            cursor.execute( SQLOutputHandler.insert_test_sql, { 'id': str( test_result.test.id ), 'input': str( test_result.test.input ), 'expected_output': str( test_result.test.expected_output ) } )
-            cursor.execute( SQLOutputHandler.insert_test_result_sql, { 'test_id': str( test_result.test.id ), 'test_set_id': str( test_set_result.test_set.id ), 'results': str( test_result.result ) } )
+            cursor.execute( SQLOutputHandler.insert_test_sql, { 'id': str( test_result.test.id ), 'input': json.dumps( test_result.test.input ), 'expected_output': json.dumps( test_result.test.expected_output ) } )
+            cursor.execute( SQLOutputHandler.insert_test_result_sql, { 'test_id': str( test_result.test.id ), 'test_set_id': str( test_set_result.test_set.id ), 'results': json.dumps( test_result.result ) } )
 
         self.conn.commit()
 
@@ -130,6 +132,25 @@ class SQLOutputHandler( OutputHandler ):
     VALUES
         ( :test_id, :test_set_id, :results )
     """
+
+def createTestSetResultFromRow( row ):
+    test_set_result = TestSetResult( None )
+    test_set_result.id = row[ 1 ]
+    print( row[ 2 ] )
+    test_set_result.result = json.loads( row[ 2 ] )
+    test_set_result.algorithm_instance_id = row[ 3 ]
+    return test_set_result
+
+def loadSQLHistory( sqlite_filename ):
+    conn = sqlite3.connect( sqlite_filename )
+
+    cursor = conn.cursor()
+
+    test_set_results = cursor.execute( 'SELECT * FROM TestSetResults;' ).fetchall()
+    test_set_results = list( map( createTestSetResultFromRow, test_set_results ) )
+
+    conn.close()
+    return test_set_results
 
 if __name__ == '__main__':
     SQLOutputHandler( './test.sql' )
