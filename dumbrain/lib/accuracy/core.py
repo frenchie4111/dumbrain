@@ -117,16 +117,10 @@ def testAlgorithm(
     for output_handler in output_handlers:
         output_handler.handle( test_set_result_handler.test_set_result )
 
-"""
-def MyAlgorithm():
-    def _run( self, input ):
-        return test.input * 2
-
-test_set_generator = DirectoryGenerator( './Log_Files/' )
-testAlgorithm( MyAlgorithm, test_set, output=[ SQLOutput( './my_algo_results.sql' ), LogOutput() ] )
-"""
-
 if __name__ == '__main__':
+    """
+    Simple example of using this system to track the accuracy of an algorithm
+    """
     import random
 
     class SometimesDoubleAlgorithm( Algorithm ):
