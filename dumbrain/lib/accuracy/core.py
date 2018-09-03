@@ -15,8 +15,8 @@ class Test():
         self.expected_output = expected_output
         if id is None:
             hash = hashlib.md5()
-            hash.update( str( input ) )
-            hash.update( str( expected_output ) )
+            hash_string = str( input ) + str( expected_output )
+            hash.update( hash_string.encode( 'utf-8' ) )
             id = hash.hexdigest()
         self.id = id
 
