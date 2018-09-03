@@ -3,7 +3,7 @@ import json
 
 from .core import OutputHandler
 from dumbrain.lib.migration import MigrationHandler
-from .core import TestSetResult
+from .core import TestSetResult, Algorithm
 
 class SQLOutputHandler( OutputHandler ):
     def __init__( self, sql_filename, initialize=True ):
@@ -133,12 +133,31 @@ class SQLOutputHandler( OutputHandler ):
         ( :test_id, :test_set_id, :results )
     """
 
+fetch_test_set_results_sql = """
+SELECT * 
+FROM TestSetResults 
+JOIN AlgorithmInstances 
+    ON TestSetResults.algorithm_instance_id = AlgorithmInstances.id
+;
+"""
+
 def createTestSetResultFromRow( row ):
+    """
+        TODO: This is brittle as fuck
+    """
     test_set_result = TestSetResult( None )
     test_set_result.id = row[ 1 ]
-    print( row[ 2 ] )
     test_set_result.result = json.loads( row[ 2 ] )
     test_set_result.algorithm_instance_id = row[ 3 ]
+
+    algorithm = Algorithm(
+        id=row[ 6 ],
+        description=row[ 7 ],
+        version=row[ 8 ],
+        parameters=json.loads( row[ 9 ] )
+    )
+    test_set_result.algorithm = algorithm
+
     return test_set_result
 
 def loadSQLHistory( sqlite_filename ):
@@ -146,7 +165,7 @@ def loadSQLHistory( sqlite_filename ):
 
     cursor = conn.cursor()
 
-    test_set_results = cursor.execute( 'SELECT * FROM TestSetResults;' ).fetchall()
+    test_set_results = cursor.execute( fetch_test_set_results_sql ).fetchall()
     test_set_results = list( map( createTestSetResultFromRow, test_set_results ) )
 
     conn.close()
