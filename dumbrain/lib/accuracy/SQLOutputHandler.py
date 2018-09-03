@@ -28,19 +28,43 @@ class SQLOutputHandler( OutputHandler ):
         } )
         return cursor.lastrowid
 
-    def upsertTest( self, cursor, data ):
-        cursor.execute( SQLOutputHandler.update_test_sql, data )
+    def upsert( self, cursor, update_sql, insert_sql, data ):
+        cursor.execute( update_sql, data )
 
         if cursor.rowcount == 0:
-            cursor.execute( SQLOutputHandler.insert_test_sql, data )
+            cursor.execute( insert_sql, data )
 
-    def handle( self, test_set_result ):
+    def saveTestSet( self, test_set ):
         cursor = self.conn.cursor()
-        algorithm_instance_id = self.insertAlgorithmInstance( cursor, test_set_result.test_set.algorithm )
 
         cursor.execute( SQLOutputHandler.insert_test_set_sql, {
-            'id': str( test_set_result.test_set.id )
+            'id': str( test_set.id )
         } )
+
+        for test_i, test in enumerate( test_set.tests ):
+            test_data = {
+                'id': str( test.id ),
+                'input': json.dumps( test.input ),
+                'expected_output': json.dumps( test.expected_output ),
+            }
+
+            self.upsert( cursor, SQLOutputHandler.update_test_sql, SQLOutputHandler.insert_test_sql, test_data )
+
+            test_test_set_data = {
+                'test_id': str( test.id ),
+                'test_set_id': str( test_set.id ),
+                'sequence_position': str( test_i )
+            }
+
+            self.upsert( cursor, SQLOutputHandler.update_test_test_set_sql, SQLOutputHandler.insert_test_test_set_sql, test_test_set_data )
+
+    def handle( self, test_set_result ):
+        self.saveTestSet( test_set_result.test_set )
+
+        cursor = self.conn.cursor()
+
+        algorithm_instance_id = self.insertAlgorithmInstance( cursor, test_set_result.test_set.algorithm )
+
         cursor.execute( SQLOutputHandler.insert_test_set_result_sql, { 
             'test_set_id': str( test_set_result.test_set.id ), 
             'results': json.dumps( test_set_result.result ),
@@ -48,14 +72,6 @@ class SQLOutputHandler( OutputHandler ):
         } )
 
         for test_result_i, test_result in enumerate( test_set_result.test_results ):
-            test_data = {
-                'id': str( test_result.test.id ),
-                'input': json.dumps( test_result.test.input ),
-                'expected_output': json.dumps( test_result.test.expected_output ),
-                'test_set_id': str( test_set_result.test_set.id ),
-                'sequence_position': test_result_i
-            }
-            self.upsertTest( cursor, test_data )
             cursor.execute( SQLOutputHandler.insert_test_result_sql, { 
                 'test_id': str( test_result.test.id ), 
                 'test_set_id': str( test_set_result.test_set.id ), 
@@ -80,16 +96,22 @@ class SQLOutputHandler( OutputHandler ):
             CREATE TABLE Tests (
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-                id VARCHAR( 200 ) NOT NULL,
-                test_set_id VARCHAR( 200 ) NOT NULL,
+                id VARCHAR( 200 ) PRIMARY KEY,
 
                 input TEXT NOT NULL,
-                expected_output TEXT NOT NULL,
+                expected_output TEXT NOT NULL
+            );
+            """,
+            """
+            CREATE TABLE TestsTestSets (
+                test_id VARCHAR( 200 ) NOT NULL,
+                test_set_id VARCHAR( 200 ) NOT NULL,
                 sequence_position INTEGER NOT NULL,
 
-                PRIMARY KEY( test_set_id, id ),
-                FOREIGN KEY( test_set_id ) REFERENCES TestSets( id )
-            );
+                PRIMARY KEY( test_set_id, test_id ),
+                FOREIGN KEY( test_set_id ) REFERENCES TestSets( id ),
+                FOREIGN KEY( test_id ) REFERENCES Tests( test_id )
+            )
             """,
             """
             CREATE TABLE Algorithms (
@@ -143,21 +165,34 @@ class SQLOutputHandler( OutputHandler ):
         ( :id )
     """
 
+    insert_test_sql = """
+    INSERT OR IGNORE INTO Tests ( id, input, expected_output )
+    VALUES
+        ( :id, :input, :expected_output )
+    """
+
     update_test_sql = """
     UPDATE Tests
         SET
             input = :input,
-            expected_output = :expected_output,
-            sequence_position = :sequence_position
+            expected_output = :expected_output
         WHERE
-            id = :id AND
-            test_set_id = :test_set_id
+            id = :id
     """
 
-    insert_test_sql = """
-    INSERT OR IGNORE INTO Tests ( id, input, expected_output, test_set_id, sequence_position )
+    insert_test_test_set_sql = """
+    INSERT OR IGNORE INTO TestsTestSets( test_set_id, test_id, sequence_position )
     VALUES
-        ( :id, :input, :expected_output, :test_set_id, :sequence_position )
+        ( :test_set_id, :test_id, :sequence_position )
+    """
+
+    update_test_test_set_sql = """
+    UPDATE TestsTestSets
+    SET
+        sequence_position = :sequence_position
+    WHERE
+        test_set_id = :test_set_id AND
+        test_id = :test_id;
     """
 
     insert_algorithm_sql = """
