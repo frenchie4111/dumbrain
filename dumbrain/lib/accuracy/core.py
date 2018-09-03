@@ -11,6 +11,7 @@ class TestSet():
     def __init__( self, tests, id=None ):
         self.tests = tests
         self.id = id if id is not None else str( time.time() )
+        self.algorithm = None
 
 class TestOutput():
     def __init__( self, test, output ):
@@ -37,11 +38,26 @@ class TestSetResult():
         self.result = result
 
 class Algorithm():
-    def _run( self, input ):
+    def __init__( self, id='algorithm', description='No description', version='na', parameters={} ):
+        self.id = id
+        self.description = description
+        self.version = version
+        self.parameters = parameters
+
+    def _run( self, input, parameters ):
         pass
 
     def run( self, test ) -> TestOutput:
-        return TestOutput( test, self._run( test.input ) )
+        return TestOutput( test, self._run( test.input, self.parameters ) )
+
+    def getVersion( self ):
+        return self.version
+
+    def getDescription( self ):
+        return self.description
+
+    def getParameters( self ) :
+        return self.parameters
 
 class TestSetResultHandler():
     def __init__( self, test_set ):
@@ -105,8 +121,22 @@ def testAlgorithm(
         test_set_result_handler_class: Type( TestSetResultHandler ) = BasicTestResultHandler,
         output_handlers: List[ OutputHandler ] = [ LogHandler() ]
     ):
+    """
+    Uses the framework to test the given algorithm against the test set generated
+    by the provided generator
+
+    params:
+        algorithm: An Algorithm that takes an input and responds with an output
+        test_set_generator: Instance of TestSetGenerator that creates the test cases
+
+        test_set_result_handler_class: subclass TestSetResultHandler, specifies how
+            the results of the test runs will be compiled
+        output_handlers: List of Instances of Subclasses of OutputHandler, each one
+            will be passed the full results for storage / output
+    """
     test_set = test_set_generator.generate()
-    test_set_result_handler = BasicTestResultHandler( test_set )
+    test_set.algorithm = algorithm
+    test_set_result_handler = test_set_result_handler_class( test_set )
 
     for test in test_set.tests:
         test_output = algorithm.run( test )
@@ -125,6 +155,7 @@ if __name__ == '__main__':
 
     class SometimesDoubleAlgorithm( Algorithm ):
         def __init__( self ):
+            super( SometimesDoubleAlgorithm, self ).__init__();
             self.threshold = random.randint( 5, 8 )
 
         def _run( self, input ):
