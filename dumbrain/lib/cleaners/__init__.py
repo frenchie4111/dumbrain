@@ -24,10 +24,14 @@ class DummyColumnCleaner( ColumnCleaner ):
 
     def clean( self, data ):
         data = data.copy()
-        dummy_cols = pd.get_dummies( data[ self.column_name ], prefix='' )
-        dummy_cols = dummy_cols.add_suffix( '_' + self.column_name )
-        data = data.join( dummy_cols, rsuffix=self.column_name )
+
+        for possible_value in self.all_values:
+            new_column_name = '_' + possible_value + '_' + self.column_name
+            data[ new_column_name ] = 1
+            data[ new_column_name ] = data[ new_column_name ].where( data[ self.column_name ] == possible_value, 0 )
+
         data = data.drop( self.column_name, axis=1 )
+
         return data
 
 class RemoveColumnCleaner( ColumnCleaner ):
@@ -43,6 +47,16 @@ class FilterDataCleaner( DataCleaner ):
 
     def clean( self, data ):
         return data[ self.filter_func( data ) ]
+
+class MapColumnCleaner( ColumnCleaner ):
+    def __init__( self, column_name, map_func ):
+        super( MapColumnCleaner, self ).__init__( column_name )
+        self.map_func = map_func
+
+    def clean( self, data ):
+        data = data.copy()
+        data[ self.column_name ] = data[ self.column_name ].map( self.map_func )
+        return data
 
 class FillNaNDataCleaner( DataCleaner ):
     def __init__( self, new_value ):
