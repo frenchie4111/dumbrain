@@ -6,7 +6,7 @@ def download( competition ):
     if not os.path.exists( data_dir ):
         os.makedirs( data_dir )
     subprocess.check_output( [ 'kaggle', 'competitions', 'download', '-p', data_dir, '-c', competition ] )
-    unzip_all()
+    unzip_all( data_dir )
     return os.listdir( data_dir )
 
 def unzip_all( data_dir ):
