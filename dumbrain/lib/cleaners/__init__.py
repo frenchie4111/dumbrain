@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 import abc
 
-class DataCleaner( metaclass=abc.ABCMeta ):
+class DataCleaner():
+    __metaclass__ = abc.ABCMeta
+
     def __init__( self ):
         pass
 
