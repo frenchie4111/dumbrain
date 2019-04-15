@@ -129,11 +129,12 @@ def cleanData( _cleaners, _data ):
     return _data
 
 class QuantileBuckets( ColumnCleaner ):
-    def __init__( self, column_name, quantiles ):
+    def __init__( self, column_name, quantiles, dummy=True ):
         super( QuantileBuckets, self ).__init__( column_name )
         self.q1 = quantiles[ 0 ]
         self.q2 = quantiles[ 1 ]
         self.q3 = quantiles[ 2 ]
+        self.dummy = dummy
 
     def getQuantile( self, value ):
         if value > self.q3:
@@ -146,5 +147,6 @@ class QuantileBuckets( ColumnCleaner ):
 
     def clean( self, data ):
         data = MapColumnCleaner( self.column_name, self.getQuantile, keep=True ).clean( data )
-        data = DummyColumnCleaner( self.column_name + '_mapped', [ '1', '2', '3', '4' ] ).clean( data )
+        if self.dummy:
+            data = DummyColumnCleaner( self.column_name + '_mapped', [ '1', '2', '3', '4' ] ).clean( data )
         return data
