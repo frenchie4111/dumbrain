@@ -129,11 +129,11 @@ def cleanData( _cleaners, _data ):
     return _data
 
 class QuantileBuckets( ColumnCleaner ):
-    def __init__( self, column_name, all_data ):
+    def __init__( self, column_name, quantiles ):
         super( QuantileBuckets, self ).__init__( column_name )
-        self.q1 = all_data[ self.column_name ].quantile( .25 )
-        self.q2 = all_data[ self.column_name ].quantile( .50 )
-        self.q3 = all_data[ self.column_name ].quantile( .75 )
+        self.q1 = quantiles[ 0 ]
+        self.q2 = quantiles[ 1 ]
+        self.q3 = quantiles[ 2 ]
 
     def getQuantile( self, value ):
         if value > self.q3:
