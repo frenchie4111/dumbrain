@@ -49,13 +49,27 @@ class FilterDataCleaner( DataCleaner ):
         return data[ self.filter_func( data ) ]
 
 class MapColumnCleaner( ColumnCleaner ):
+    def __init__( self, column_name, map_func, keep=False ):
+        super( MapColumnCleaner, self ).__init__( column_name )
+        self.map_func = map_func
+        self.keep = keep
+
+    def clean( self, data ):
+        data = data.copy()
+        new_column_name = self.column_name
+        if keep:
+            new_column_name += '_mapped'
+        data[ new_column_name ] = data[ self.column_name ].map( self.map_func )
+        return data
+
+class CalculatedColumnCleaner( ColumnCleaner ):
     def __init__( self, column_name, map_func ):
         super( MapColumnCleaner, self ).__init__( column_name )
         self.map_func = map_func
 
     def clean( self, data ):
         data = data.copy()
-        data[ self.column_name ] = data[ self.column_name ].map( self.map_func )
+        data[ self.column_name ] = self.map_func( data )
         return data
 
 class FillNaNDataCleaner( DataCleaner ):
