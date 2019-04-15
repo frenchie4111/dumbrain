@@ -57,7 +57,7 @@ class MapColumnCleaner( ColumnCleaner ):
     def clean( self, data ):
         data = data.copy()
         new_column_name = self.column_name
-        if keep:
+        if self.keep:
             new_column_name += '_mapped'
         data[ new_column_name ] = data[ self.column_name ].map( self.map_func )
         return data
