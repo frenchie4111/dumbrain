@@ -127,3 +127,24 @@ def cleanData( _cleaners, _data ):
     for cleaner in _cleaners:
         _data = cleaner.clean( _data )
     return _data
+
+class QuantileBuckets( ColumnCleaner ):
+    def __init__( self, column_name, all_data ):
+        super( QuantileBuckets, self ).__init__( column_name )
+        self.q1 = all_data[ self.column_name ].quantile( .25 )
+        self.q2 = all_data[ self.column_name ].quantile( .50 )
+        self.q3 = all_data[ self.column_name ].quantile( .75 )
+
+    def getQuantile( self, value ):
+        if value > self.q3:
+            return '4'
+        if value > self.q2:
+            return '3'
+        if value > self.q1:
+            return '2'
+        return '1'
+
+    def clean( self, data ):
+        data = MapColumnCleaner( self.column_name, self.getQuantile, keep=True ).clean( data )
+        data = DummyColumnCleaner( self.column_name + '_mapped', [ '1', '2', '3', '4' ] ).clean( data )
+        return data
