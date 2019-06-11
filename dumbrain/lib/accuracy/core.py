@@ -1,4 +1,3 @@
-from typing import Dict, List, Type
 import hashlib
 
 class Test():
@@ -32,14 +31,14 @@ class TestOutput():
         self.output = output
     
 class TestResult():
-    def __init__( self, test_output: TestOutput, result: Dict ):
+    def __init__( self, test_output, result ):
         self.test_output = test_output
         self.result = result
 
         self.test = test_output.test
 
 class TestSetResult():
-    def __init__( self, test_set: TestSet ):
+    def __init__( self, test_set ):
         self.test_set = test_set
         self.test_results = []
         self.result = None        
@@ -60,7 +59,7 @@ class Algorithm():
     def _run( self, input, parameters ):
         pass
 
-    def run( self, test ) -> TestOutput:
+    def run( self, test ):
         return TestOutput( test, self._run( test.input, self.parameters ) )
 
     def getVersion( self ):
@@ -76,19 +75,19 @@ class TestSetResultHandler():
     def __init__( self, test_set ):
         self.test_set_result = TestSetResult( test_set )
 
-    def addOutput( self, test_output: TestOutput ) -> None:
+    def addOutput( self, test_output ):
         self.test_set_result.addTestResult( self.handleTestOutput( test_output ) )
 
-    def handleTestOutput( self, test_output: TestOutput ) -> TestResult:
+    def handleTestOutput( self, test_output ):
         """
             Map
         """
         return TestResult( test_output, {} )
 
-    def calculateResults( self ) -> TestSetResult:
+    def calculateResults( self ):
         """
             Reduce
-        """
+        """x
         return self.test_set_result
 
 class BasicTestResultHandler( TestSetResultHandler ):
@@ -112,11 +111,11 @@ class BasicTestResultHandler( TestSetResultHandler ):
         } )
 
 class TestSetGenerator():
-    def generate( self ) -> TestSet:
+    def generate( self ):
         return []
 
 class OutputHandler():
-    def handle( self, test_set_result: TestSetResult ) -> None:
+    def handle( self, test_set_result ):
         pass
 
 class LogHandler():
@@ -130,9 +129,9 @@ class LogHandler():
 test_set_generator = None
 def testAlgorithm( 
         algorithm: Algorithm, 
-        test_set_generator: TestSetGenerator,
-        test_set_result_handler_class: Type( TestSetResultHandler ) = BasicTestResultHandler,
-        output_handlers: List[ OutputHandler ] = [ LogHandler() ]
+        test_set_generator,
+        test_set_result_handler_class = BasicTestResultHandler,
+        output_handlers = [ LogHandler() ]
     ):
     """
     Uses the framework to test the given algorithm against the test set generated
