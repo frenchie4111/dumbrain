@@ -46,7 +46,7 @@ class TestSetResult():
     def addTestResult( self, test_result ):
         self.test_results.append( test_result )
 
-    def setResult( self, result: Dict ):
+    def setResult( self, result ):
         self.result = result
 
 class Algorithm():
