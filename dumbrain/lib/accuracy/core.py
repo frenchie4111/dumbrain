@@ -71,7 +71,7 @@ class Algorithm():
     def getParameters( self ) :
         return self.parameters
 
-class TestSetResultHandler():
+class TestSetResultHandler( object ):
     def __init__( self, test_set ):
         self.test_set_result = TestSetResult( test_set )
 
