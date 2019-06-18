@@ -87,7 +87,7 @@ class TestSetResultHandler():
     def calculateResults( self ):
         """
             Reduce
-        """x
+        """
         return self.test_set_result
 
 class BasicTestResultHandler( TestSetResultHandler ):
@@ -110,7 +110,7 @@ class BasicTestResultHandler( TestSetResultHandler ):
             'percent_correct': valids / len( self.test_set_result.test_results )
         } )
 
-class TestSetGenerator():
+class TestSetGenerator( object ):
     def generate( self ):
         return []
 
@@ -128,7 +128,7 @@ class LogHandler():
 
 test_set_generator = None
 def testAlgorithm( 
-        algorithm: Algorithm, 
+        algorithm, 
         test_set_generator,
         test_set_result_handler_class = BasicTestResultHandler,
         output_handlers = [ LogHandler() ]
